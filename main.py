@@ -4,18 +4,16 @@ import numpy as np
 from vega_datasets import data
 import altair as alt
 import streamlit as st
-import requests
 
-
-@st.cache
+@st.cache(allow_output_mutation=True)
 
 def load_df():
 
-    df = pd.read_csv('Senate_dataset/1976-2020-senate.csv', encoding = "ISO-8859-1")
+    df = pd.read_csv('Senate_dataset/1976-2020-senate.csv', encoding = "ISO-8859-1",index_col="state_fips")
+    df["state_fips"] = df.index
 
     df = df.drop(columns=['mode', 'version', 'unofficial','writein','special','stage'])
     df = df.dropna()
-    df = df.reset_index()
     df = df.loc[df['totalvotes'] != 0]
     temp = []
     for index, row in df.iterrows():
@@ -81,11 +79,12 @@ def load_df():
         
 
     new_df = pd.DataFrame(new_df)
+    new_df = new_df.set_index("state_fips")
+    new_df["state_fips"] = new_df.index
     new_df = new_df.replace(np.nan, 0)
     return new_df
 
 df = load_df()
-st.write(df)
 
 states = alt.topo_feature(data.us_10m.url, 'states')
 
@@ -115,7 +114,6 @@ elif party == 'Green' and value == "# values":
 elif party == 'Green' and value == "'%' change":
      curr_party = "grn_pct"
 
-print(curr_party)
 
 years = tuple(df["year"].unique())
 
@@ -124,40 +122,42 @@ start_year = st.selectbox(
 end_year = st.selectbox(
      'Select End year',years)
 
-st.write(df.loc[df["year"] == start_year])
-print(len(df.loc[df["year"] == start_year]))
 
-fig = alt.Chart(states).mark_geoshape().project(
-        type='albersUsa'
-    ).encode(
-        color=curr_party+':Q',
-        tooltip=['state:N', curr_party+':Q']
-    ).transform_lookup(
-    lookup='id',
-    from_=alt.LookupData(df.loc[df["year"] == start_year], 'state_fips', [curr_party, 'state'])
-    ).properties(
-        width=400,
-        height=400
-    )
+alt.data_transformers.enable('default', max_rows=None)
 
-fig2 = alt.Chart(states).mark_geoshape(
-    stroke='black',
-        strokeWidth=1
-    ).project(
-        type='albersUsa'
-    ).encode(
-        color=curr_party+':Q',
-        tooltip=['state:N', curr_party+':Q']
-    ).transform_lookup(
-    lookup='id',
-    from_=alt.LookupData(df.loc[df["year"] == end_year], 'state_fips', [curr_party, 'state'])
-    ).properties(
-        width=400,
-        height=400
-    )
+if start_year != end_year:
 
-st.write(fig)
-st.write(fig2)
+    df2 = pd.DataFrame(df,columns=["state"],index =df.index)
+    df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=["state",curr_party],index =df.index)
+    df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=["state",curr_party],index =df.index)
+
+    df2["end_year"] = df_end_year[curr_party]
+    df2["start_year"] = df_start_year[curr_party]
+    df2["state_fips"] = df2.index
+
+    df2 = df2.replace(np.nan, 0)
+    df2["diff"] = df2["end_year"] - df2["start_year"]
+    df2 = df2.loc[df2['state'] != 0]
+
+    fig = alt.Chart(states).mark_geoshape(
+        stroke='black',
+            strokeWidth=1
+        ).project(
+            type='albersUsa'
+        ).encode(
+            color=alt.Color('diff:Q',scale=alt.Scale(scheme='turbo')),
+            tooltip=['state:N', 'diff:Q'],
+            
+        ).transform_lookup(
+        lookup='id',
+        from_=alt.LookupData(df2, 'state_fips', ['diff', 'state'])
+        ).properties(
+            width=800,
+            height=400
+        )
+    
+    st.write(fig)
+
 
 
 

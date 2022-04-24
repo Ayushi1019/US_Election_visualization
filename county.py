@@ -1,4 +1,3 @@
-from tracemalloc import start
 import pandas as pd
 import numpy as np
 from vega_datasets import data
@@ -8,21 +7,20 @@ import streamlit as st
 
 @st.cache(allow_output_mutation=True)
 
-def load_df():
+def load_df_county():
 
-    df = pd.read_csv('County_President/countypres_2000-2020.csv')
+    df = pd.read_csv('County_President/countypres_2000-2020.csv',index_col="county_fips")
+    df["county_fips"] = df.index
 
     # drop unused columns and nulls
     df = df.drop(columns=['mode', 'version', 'office'])
     df = df.dropna()
-    df = df.reset_index()
     df = df.loc[df['totalvotes'] != 0]
     temp = []
     for index, row in df.iterrows():
         temp.append(round(row['candidatevotes'] / row['totalvotes'], 4))
     df['percentage'] = temp
 
-    #create new dataframe with desired data config
     #create new dataframe with desired data config
     curr_county = 'AUTAUGA'
     new_df = []
@@ -83,15 +81,21 @@ def load_df():
         
 
     new_df = pd.DataFrame(new_df)
-    new_df = new_df.replace(np.nan, 0)
+    new_df = new_df.set_index("county_fips")
+    new_df["county_fips"] = new_df.index
     return new_df
 
-df = load_df()
+
+df = load_df_county()
 
 county = alt.topo_feature(data.us_10m.url, 'counties')
 
-col3,col4 = st.columns(2)
+dataset = st.sidebar.selectbox(
+    "Choose the dataset",
+    ("Senate", "House", "County-Presidential","Presidential")
+)
 
+col3,col4 = st.columns(2)
 col1, col2 = st.columns(2)
 years = tuple(df["year"].unique())
 
@@ -132,39 +136,38 @@ elif party == 'Green' and value == "# values":
 elif party == 'Green' and value == "'%' change":
      curr_party = "grn_pct"
 
-fig = alt.Chart(county).mark_geoshape().project(
-            type='albersUsa'
-        ).encode(
-            color=curr_party+':Q',
-            tooltip=['county:N', curr_party+':Q']
-        ).transform_lookup(
-        lookup='id',
-        from_=alt.LookupData(df.loc[df["year"] == start_year], 'county_fips', [curr_party, 'county'])
-        ).properties(
-            width=300,
-            height=400
-        )
-fig2 = alt.Chart(county).mark_geoshape(
+alt.data_transformers.enable('default', max_rows=None)
+
+if start_year != end_year:
+
+    df2 = pd.DataFrame(df,columns=["county"],index =df.index)
+    df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=["county",curr_party],index =df.index)
+    df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=["county",curr_party],index =df.index)
+
+    df2["end_year"] = df_end_year[curr_party]
+    df2["start_year"] = df_start_year[curr_party]
+    df2["county_fips"] = df2.index
+
+    df2 = df2.replace(np.nan, 0)
+    df2["diff"] = df2["end_year"] - df2["start_year"]
+    df2 = df2.loc[df2['county'] != 0]
+
+    fig = alt.Chart(county).mark_geoshape(
         stroke='black',
             strokeWidth=1
         ).project(
             type='albersUsa'
         ).encode(
-            color=curr_party+':Q',
-            tooltip=['county:N', curr_party+':Q']
+            color=alt.Color('diff:Q',scale=alt.Scale(scheme='turbo')),
+            tooltip=['county:N', 'diff:Q'],
+            
         ).transform_lookup(
         lookup='id',
-        from_=alt.LookupData(df.loc[df["year"] == end_year], 'county_fips', [curr_party, 'county'])
+        from_=alt.LookupData(df2, 'county_fips', ['diff', 'county'])
         ).properties(
-            width=300,
+            width=800,
             height=400
         )
-
-if start_year != end_year:
-
-    with col1:
-        st.write(fig)
-
-    with col2:
-        st.write(fig2)
+    
+    st.write(fig)
 
