@@ -89,12 +89,13 @@ def load_df_county():
 
 def load_df_senate():
 
-    df = pd.read_csv('Senate_dataset/1976-2020-senate.csv', encoding = "ISO-8859-1",index_col="state_fips")
+    df = pd.read_csv('Senate_dataset/1976-2020-senate.csv',index_col="state_fips")
     df["state_fips"] = df.index
 
     df = df.drop(columns=['mode', 'version', 'unofficial','writein','special','stage'])
     df = df.dropna()
     df = df.loc[df['totalvotes'] != 0]
+    
     temp = []
     for index, row in df.iterrows():
         temp.append(round(row['candidatevotes'] / row['totalvotes'], 4))
@@ -111,7 +112,7 @@ def load_df_senate():
             temp_dict['state'] = row['state']
             temp_dict['state_fips'] = int(row['state_fips'])
             temp_dict['total_no'] = row['totalvotes']
-            curr_party = row['party_detailed'][0].lower()
+            curr_party = row['party_simplified'][0].lower()
             if curr_party == 'd':
                 temp_dict['dem_no'] = row['candidatevotes']
                 temp_dict['dem_pct'] = row['percentage']
@@ -136,7 +137,7 @@ def load_df_senate():
             temp_dict['state'] = row['state']
             temp_dict['state_fips'] = int(row['state_fips'])
             temp_dict['total_no'] = row['totalvotes']
-            curr_party = row['party_detailed'][0].lower()
+            curr_party = row['party_simplified'][0].lower()
 
             if curr_party == 'd':
                 temp_dict['dem_no'] = row['candidatevotes']
@@ -163,167 +164,182 @@ def load_df_senate():
     new_df = new_df.replace(np.nan, 0)
     return new_df
 
-# def load_senate():
-#     df = load_df_senate()
+def load_df_president():
 
-#     states = alt.topo_feature(data.us_10m.url, 'states')
+    df = pd.read_csv('Presidential_dataset/1976-2020-president.csv',index_col="state_fips")
+    df["state_fips"] = df.index
+    # drop unused columns and nulls
+    df = df.drop(columns=['writein','version','notes','state_cen','state_ic','office'])
+    df = df.dropna()
+    df = df.loc[df['totalvotes'] != 0]
+    temp = []
 
-#     party = st.radio(
-#         "Choose party",
-#         ('Democrat', 'Republican', 'Libertarian','Green'))
+    for index, row in df.iterrows():
+        temp.append(round(row['candidatevotes'] / row['totalvotes'], 4))
+    df['percentage'] = temp
 
-#     value = st.radio(
-#         "Choose to display # or '%' change",
-#         ('# values', "'%' change"))
-
-#     curr_party = "dem_no"
-#     if party == 'Democrat' and value == "# values":
-#         curr_party = "dem_no"
-#     elif party == 'Democrat' and value == "'%' change":
-#         curr_party = "dem_pct"
-#     elif party == 'Republican' and value == "# values":
-#         curr_party = "rep_no"
-#     elif party == 'Republican' and value == "'%' change":
-#         curr_party = "rep_pct"
-#     elif party == 'Libertarian' and value == "# values":
-#         curr_party = "lib_no"
-#     elif party == 'Libertarian' and value == "'%' change":
-#         curr_party = "lib_pct"
-#     elif party == 'Green' and value == "# values":
-#         curr_party = "grn_no"
-#     elif party == 'Green' and value == "'%' change":
-#         curr_party = "grn_pct"
-
-
-#     years = tuple(df["year"].unique())
-
-#     start_year = st.selectbox(
-#         'Select Start year',years)
-#     end_year = st.selectbox(
-#         'Select End year',years)
-
-
-#     alt.data_transformers.enable('default', max_rows=None)
-
-#     if start_year != end_year:
-
-#         df2 = pd.DataFrame(df,columns=["state"],index =df.index)
-#         df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=["state",curr_party],index =df.index)
-#         df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=["state",curr_party],index =df.index)
-
-#         df2["end_year"] = df_end_year[curr_party]
-#         df2["start_year"] = df_start_year[curr_party]
-#         df2["state_fips"] = df2.index
-
-#         df2 = df2.replace(np.nan, 0)
-#         df2["diff"] = df2["end_year"] - df2["start_year"]
-#         df2 = df2.loc[df2['state'] != 0]
-
-#         fig = alt.Chart(states).mark_geoshape(
-#             stroke='black',
-#                 strokeWidth=1
-#             ).project(
-#                 type='albersUsa'
-#             ).encode(
-#                 color=alt.Color('diff:Q',scale=alt.Scale(scheme='turbo')),
-#                 tooltip=['state:N', 'diff:Q'],
-                
-#             ).transform_lookup(
-#             lookup='id',
-#             from_=alt.LookupData(df2, 'state_fips', ['diff', 'state'])
-#             ).properties(
-#                 width=800,
-#                 height=400
-#             )
+    #create new dataframe with desired data config
+    curr_state = 'ALABAMA'
+    new_df = []
+    temp_dict = {}
+    for index, row in df.iterrows():      
         
-#         st.write(fig)
+        if row['state'] == curr_state:
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            temp_dict['total_no'] = row['totalvotes']
+            curr_party = row['party_simplified'][0].lower()
+            if curr_party == 'd':
+                temp_dict['dem_no'] = row['candidatevotes']
+                temp_dict['dem_pct'] = row['percentage']
+            elif curr_party == 'r':
+                temp_dict['rep_no'] = row['candidatevotes']
+                temp_dict['rep_pct'] = row['percentage']
+            elif curr_party == 'l':
+                temp_dict['lib_no'] = row['candidatevotes']
+                temp_dict['lib_pct'] = row['percentage']
+            elif curr_party == 'g':
+                temp_dict['grn_no'] = row['candidatevotes']
+                temp_dict['grn_pct'] = row['percentage']
+            else:
+                temp_dict['oth_no'] = row['candidatevotes']
+                temp_dict['oth_pct'] = row['percentage']
+        else:
+            copy = temp_dict.copy()
+            new_df.append(copy)
+            temp_dict.clear()
+            
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            temp_dict['total_no'] = row['totalvotes']
+            curr_party = row['party_simplified'][0].lower()
 
-# def load_county():
-#     df = load_df_county()
-
-#     county = alt.topo_feature(data.us_10m.url, 'counties')
-
-#     col3,col4 = st.columns(2)
-#     col1, col2 = st.columns(2)
-#     years = tuple(df["year"].unique())
-
-#     with col3:
+            if curr_party == 'd':
+                temp_dict['dem_no'] = row['candidatevotes']
+                temp_dict['dem_pct'] = row['percentage']
+            elif curr_party == 'r':
+                temp_dict['rep_no'] = row['candidatevotes']
+                temp_dict['rep_pct'] = row['percentage']
+            elif curr_party == 'l':
+                temp_dict['lib_no'] = row['candidatevotes']
+                temp_dict['lib_pct'] = row['percentage']
+            elif curr_party == 'g':
+                temp_dict['grn_no'] = row['candidatevotes']
+                temp_dict['grn_pct'] = row['percentage']
+            else:
+                temp_dict['oth_no'] = row['candidatevotes']
+                temp_dict['oth_pct'] = row['percentage']
         
-#         party = st.radio(
-#                 "Choose party",
-#                 ('Democrat', 'Republican', 'Libertarian','Green'))
-
-#         value = st.radio(
-#                 "Choose to display # or '%' change",
-#                 ('# values', "'%' change"))
-
-#     with col1:
+        curr_state = row['state']
         
-#         start_year = st.selectbox(
-#             'Select Start year',years)
 
-#     with col2:
-#         end_year = st.selectbox(
-#         'Select End year',years)
+    new_df = pd.DataFrame(new_df)
+    new_df = new_df.set_index("state_fips")
+    new_df["state_fips"] = new_df.index
+    new_df = new_df.replace(np.nan, 0)
+    return new_df
 
-#     curr_party = "dem_no"
-#     if party == 'Democrat' and value == "# values":
-#         curr_party = "dem_no"
-#     elif party == 'Democrat' and value == "'%' change":
-#         curr_party = "dem_pct"
-#     elif party == 'Republican' and value == "# values":
-#         curr_party = "rep_no"
-#     elif party == 'Republican' and value == "'%' change":
-#         curr_party = "rep_pct"
-#     elif party == 'Libertarian' and value == "# values":
-#         curr_party = "lib_no"
-#     elif party == 'Libertarian' and value == "'%' change":
-#         curr_party = "lib_pct"
-#     elif party == 'Green' and value == "# values":
-#         curr_party = "grn_no"
-#     elif party == 'Green' and value == "'%' change":
-#         curr_party = "grn_pct"
+def load_df_house():
+    df = pd.read_csv('House_dataset/1976-2020-house.csv',index_col="state_fips")
+    df["state_fips"] = df.index
+    # drop unused columns and nulls
+    
+    df = df.drop(columns=['writein','version','state_cen','state_ic','office','special','runoff','stage','mode','fusion_ticket','unofficial'])
+    df = df.dropna()
+    df = df.loc[df['totalvotes'] != 0]
+    temp = []
 
-#     alt.data_transformers.enable('default', max_rows=None)
+    for index, row in df.iterrows():
+        temp.append(round(row['candidatevotes'] / row['totalvotes'], 4))
+    df['percentage'] = temp
 
-#     if start_year != end_year:
+    valid_parties = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'INDEPENDENT', 'GREEN', 'OTHER']
 
-#         df2 = pd.DataFrame(df,columns=["county"],index =df.index)
-#         df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=["county",curr_party],index =df.index)
-#         df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=["county",curr_party],index =df.index)
+    for index, row in df.iterrows():
+        if row['party'] not in valid_parties:
+            df.loc[index,'party'] = 'OTHER'
+    st.write(df)
 
-#         df2["end_year"] = df_end_year[curr_party]
-#         df2["start_year"] = df_start_year[curr_party]
-#         df2["county_fips"] = df2.index
-
-#         df2 = df2.replace(np.nan, 0)
-#         df2["diff"] = df2["end_year"] - df2["start_year"]
-#         df2 = df2.loc[df2['county'] != 0]
-
-#         fig = alt.Chart(county).mark_geoshape(
-#             stroke='black',
-#                 strokeWidth=1
-#             ).project(
-#                 type='albersUsa'
-#             ).encode(
-#                 color=alt.Color('diff:Q',scale=alt.Scale(scheme='turbo')),
-#                 tooltip=['county:N', 'diff:Q'],
-                
-#             ).transform_lookup(
-#             lookup='id',
-#             from_=alt.LookupData(df2, 'county_fips', ['diff', 'county'])
-#             ).properties(
-#                 width=900,
-#                 height=400
-#             )
+    #create new dataframe with desired data config
+    curr_dist = 'AL1'
+    new_df = []
+    temp_dict = {}
+    for index, row in df.iterrows():
+        if row['state_po'] + str(row['district']) == curr_dist:
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state_po']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            temp_dict['district'] = row['district']
+            temp_dict['total_no'] = row['totalvotes']
+            curr_party = row['party'][0].lower()
         
-#         st.write(fig)
+            if curr_party == 'd':
+                temp_dict['dem_no'] = row['candidatevotes']
+                temp_dict['dem_pct'] = row['percentage']
+            elif curr_party == 'r':
+                temp_dict['rep_no'] = row['candidatevotes']
+                temp_dict['rep_pct'] = row['percentage']
+            elif curr_party == 'l':
+                temp_dict['lib_no'] = row['candidatevotes']
+                temp_dict['lib_pct'] = row['percentage']
+            elif curr_party == 'g':
+                temp_dict['grn_no'] = row['candidatevotes']
+                temp_dict['grn_pct'] = row['percentage']
+            elif curr_party == 'i':
+                temp_dict['indep_no'] = row['candidatevotes']
+                temp_dict['indep_pct'] = row['percentage']
+            else:
+                temp_dict['oth_no'] = row['candidatevotes']
+                temp_dict['oth_pct'] = row['percentage']
+        else:
+            copy = temp_dict.copy()
+            new_df.append(copy)
+            temp_dict.clear()
+        
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state_po']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            temp_dict['district'] = row['district']
+            temp_dict['total_no'] = row['totalvotes']
+            curr_party = row['party'][0].lower()
+
+            if curr_party == 'd':
+                temp_dict['dem_no'] = row['candidatevotes']
+                temp_dict['dem_pct'] = row['percentage']
+            elif curr_party == 'r':
+                temp_dict['rep_no'] = row['candidatevotes']
+                temp_dict['rep_pct'] = row['percentage']
+            elif curr_party == 'l':
+                temp_dict['lib_no'] = row['candidatevotes']
+                temp_dict['lib_pct'] = row['percentage']
+            elif curr_party == 'g':
+                temp_dict['grn_no'] = row['candidatevotes']
+                temp_dict['grn_pct'] = row['percentage']
+            elif curr_party == 'i':
+                temp_dict['indep_no'] = row['candidatevotes']
+                temp_dict['indep_pct'] = row['percentage']
+            else:
+                temp_dict['oth_no'] = row['candidatevotes']
+                temp_dict['oth_pct'] = row['percentage']
+            
+        curr_dist = row['state_po'] + str(row['district'])
+    
+
+    new_df = pd.DataFrame(new_df)
+    new_df = new_df.set_index("state_fips")
+    new_df["state_fips"] = new_df.index
+    new_df = new_df.replace(np.nan, 0)
+    return new_df
 
 dataset = st.sidebar.selectbox(
         "Choose the dataset",
         ("Senate", "House", "County-Presidential","Presidential")
     )
 df = load_df_senate()
+
+valid_party = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'GREEN', 'OTHER']
 if dataset == "Senate":
     st.write("Senate Election Analysis")
     df = load_df_senate()
@@ -331,16 +347,35 @@ if dataset == "Senate":
     curr_col = "state"
     p_key = "state_fips"
 
+elif dataset == "House":
+    st.write("House Election Analysis")
+    df = load_df_house()
+    print(df)
+    st.write(df)
+    features = alt.topo_feature(data.us_10m.url, 'states')
+    curr_col = "state"
+    p_key = "state_fips"
+    valid_party = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'INDEPENDENT', 'GREEN', 'OTHER']
+
 elif dataset == "County-Presidential":
     st.write("County Presidential Election Analysis")
     df = load_df_county()
     features = alt.topo_feature(data.us_10m.url, 'counties')
     curr_col = "county"
     p_key = "county_fips"
+    valid_party = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'GREEN', 'OTHER']
+
+elif dataset == "Presidential":
+    st.write("Presidential Election Analysis")
+    df = load_df_president()
+    features = alt.topo_feature(data.us_10m.url, 'states')
+    curr_col = "state"
+    p_key = "state_fips"
+    valid_party = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'GREEN', 'OTHER']
 
 party = st.radio(
     "Choose party",
-    ('Democrat', 'Republican', 'Libertarian','Green'))
+    tuple(valid_party))
 
 value = st.radio(
     "Choose to display # or '%' change",
@@ -359,11 +394,18 @@ elif party == 'Libertarian' and value == "# values":
     curr_party = "lib_no"
 elif party == 'Libertarian' and value == "'%' change":
     curr_party = "lib_pct"
+elif party == 'Other' and value == "# values":
+    curr_party = "oth_no"
+elif party == 'Other' and value == "'%' change":
+    curr_party = "oth_pct"
+elif party == 'Independent' and value == "# values":
+    curr_party = "ind_no"
+elif party == 'Independent' and value == "'%' change":
+    curr_party = "ind_pct"
 elif party == 'Green' and value == "# values":
     curr_party = "grn_no"
 elif party == 'Green' and value == "'%' change":
     curr_party = "grn_pct"
-
 
 years = tuple(df["year"].unique())
 
@@ -380,7 +422,6 @@ if start_year != end_year:
     df2 = pd.DataFrame(df,columns=[curr_col],index =df.index)
     df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=[curr_col,curr_party],index =df.index)
     df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=[curr_col,curr_party],index =df.index)
-
     df2["end_year"] = df_end_year[curr_party]
     df2["start_year"] = df_start_year[curr_party]
     df2[p_key] = df2.index
@@ -388,7 +429,6 @@ if start_year != end_year:
     df2 = df2.replace(np.nan, 0)
     df2["diff"] = df2["end_year"] - df2["start_year"]
     df2 = df2.loc[df2[curr_col] != 0]
-
     fig = alt.Chart(features).mark_geoshape(
         stroke='black',
             strokeWidth=1
