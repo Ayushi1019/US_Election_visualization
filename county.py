@@ -26,14 +26,15 @@ def load_df_county():
     new_df = []
     temp_dict = {}
     for index, row in df.iterrows():
-        temp_dict['year'] = row['year']
-        temp_dict['county'] = row['county_name']
-        temp_dict['state'] = row['state_po']
-        temp_dict['county_fips'] = int(row['county_fips'])
-        temp_dict['total_no'] = row['totalvotes']
-        curr_party = row['party'][0].lower()
         
         if row['county_name'] == curr_county:
+            temp_dict['year'] = row['year']
+            temp_dict['county'] = row['county_name']
+            temp_dict['state'] = row['state_po']
+            temp_dict['county_fips'] = int(row['county_fips'])
+            temp_dict['total_no'] = row['totalvotes']
+            curr_party = row['party'][0].lower()
+            
             if curr_party == 'd':
                 temp_dict['dem_no'] = row['candidatevotes']
                 temp_dict['dem_pct'] = row['percentage']
@@ -78,6 +79,8 @@ def load_df_county():
                 temp_dict['oth_pct'] = row['percentage']
         
         curr_county = row['county_name']
+    
+
         
 
     new_df = pd.DataFrame(new_df)
@@ -89,11 +92,6 @@ def load_df_county():
 df = load_df_county()
 
 county = alt.topo_feature(data.us_10m.url, 'counties')
-
-dataset = st.sidebar.selectbox(
-    "Choose the dataset",
-    ("Senate", "House", "County-Presidential","Presidential")
-)
 
 col3,col4 = st.columns(2)
 col1, col2 = st.columns(2)
