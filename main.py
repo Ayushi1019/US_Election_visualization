@@ -165,6 +165,7 @@ def load_df_senate():
     return new_df
 
 def load_df_house():
+    
     df = pd.read_csv('House_dataset/1976-2020-house.csv')
     df = df.drop(columns=['writein','version','state_cen','state_ic','office','special','runoff','stage','mode','fusion_ticket','unofficial'])
     df = df.dropna()
@@ -192,7 +193,7 @@ def load_df_house():
             temp_dict['district'] = row['district']
             temp_dict['total_no'] = row['totalvotes']
             curr_party = row['party'][0].lower()
-        
+            
             if curr_party == 'd':
                 temp_dict['dem_no'] = row['candidatevotes']
                 temp_dict['dem_pct'] = row['percentage']
@@ -205,9 +206,6 @@ def load_df_house():
             elif curr_party == 'g':
                 temp_dict['grn_no'] = row['candidatevotes']
                 temp_dict['grn_pct'] = row['percentage']
-            elif curr_party == 'i':
-                temp_dict['indep_no'] = row['candidatevotes']
-                temp_dict['indep_pct'] = row['percentage']
             else:
                 temp_dict['oth_no'] = row['candidatevotes']
                 temp_dict['oth_pct'] = row['percentage']
@@ -215,7 +213,7 @@ def load_df_house():
             copy = temp_dict.copy()
             new_df.append(copy)
             temp_dict.clear()
-        
+            
             temp_dict['year'] = row['year']
             temp_dict['state'] = row['state_po']
             temp_dict['state_fips'] = int(row['state_fips'])
@@ -235,21 +233,149 @@ def load_df_house():
             elif curr_party == 'g':
                 temp_dict['grn_no'] = row['candidatevotes']
                 temp_dict['grn_pct'] = row['percentage']
-            elif curr_party == 'i':
-                temp_dict['indep_no'] = row['candidatevotes']
-                temp_dict['indep_pct'] = row['percentage']
             else:
                 temp_dict['oth_no'] = row['candidatevotes']
                 temp_dict['oth_pct'] = row['percentage']
-            
+        
         curr_dist = row['state_po'] + str(row['district'])
-    
 
     new_df = pd.DataFrame(new_df)
-    new_df = new_df.set_index("state_fips")
-    new_df["state_fips"] = new_df.index
-    new_df = new_df.replace(np.nan, 0)
-    return new_df
+    
+    #create new dataframe with desired data config
+    curr_state = 'AL'
+    final_df = []
+    temp_dict = {}
+    for index, row in new_df.iterrows():
+        if index >= len(new_df):
+            break
+        
+        if row['state'] == curr_state:
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            curr_party = get_winning_party(new_df.loc[index])
+            
+            if curr_party == 'd':
+                if 'dem_no' in temp_dict:
+                    temp_dict['dem_no'] += 1
+                else:
+                    temp_dict['dem_no'] = 1
+            elif curr_party == 'r':
+                if 'rep_no' in temp_dict:
+                    temp_dict['rep_no'] += 1
+                else:
+                    temp_dict['rep_no'] = 1
+            elif curr_party == 'l':
+                if 'lib_no' in temp_dict:
+                    temp_dict['lib_no'] += 1
+                else:
+                    temp_dict['lib_no'] = 1
+            elif curr_party == 'g':
+                if 'grn_no' in temp_dict:
+                    temp_dict['grn_no'] += 1
+                else:
+                    temp_dict['grn_no'] = 1
+            elif curr_party == 'o':
+                if 'oth_no' in temp_dict:
+                    temp_dict['oth_no'] += 1
+                else:
+                    temp_dict['oth_no'] = 1
+                    
+                    
+        else:
+            total = 0
+            if 'dem_no' in temp_dict:
+                total += temp_dict['dem_no']
+            else:
+                temp_dict['dem_no'] = 0 
+            if 'rep_no' in temp_dict:
+                total += temp_dict['rep_no']
+            else:
+                temp_dict['rep_no'] = 0  
+            if 'lib_no' in temp_dict:
+                total += temp_dict['lib_no']
+            else:
+                temp_dict['lib_no'] = 0  
+            if 'grn_no' in temp_dict:
+                total += temp_dict['grn_no']
+            else:
+                temp_dict['grn_no'] = 0  
+            if 'oth_no' in temp_dict:
+                total += temp_dict['oth_no']
+            else:
+                temp_dict['oth_no'] = 0
+                
+            temp_dict['total_no'] = total
+            
+            temp_dict['dem_pct'] = round(temp_dict['dem_no'] / temp_dict['total_no'], 4)
+            temp_dict['rep_pct'] = round(temp_dict['rep_no'] / temp_dict['total_no'], 4)
+            temp_dict['lib_pct'] = round(temp_dict['lib_no'] / temp_dict['total_no'], 4)
+            temp_dict['grn_pct'] = round(temp_dict['grn_no'] / temp_dict['total_no'], 4)
+            temp_dict['oth_pct'] = round(temp_dict['oth_no'] / temp_dict['total_no'], 4)
+                
+            
+            copy = temp_dict.copy()
+            final_df.append(copy)
+            temp_dict.clear()
+            
+            temp_dict['year'] = row['year']
+            temp_dict['state'] = row['state']
+            temp_dict['state_fips'] = int(row['state_fips'])
+            curr_party = get_winning_party(new_df.loc[index])
+
+            if curr_party == 'd':
+                if 'dem_no' in temp_dict:
+                    temp_dict['dem_no'] += 1
+                else:
+                    temp_dict['dem_no'] = 1
+            elif curr_party == 'r':
+                if 'rep_no' in temp_dict:
+                    temp_dict['rep_no'] += 1
+                else:
+                    temp_dict['rep_no'] = 1
+            elif curr_party == 'l':
+                if 'lib_no' in temp_dict:
+                    temp_dict['lib_no'] += 1
+                else:
+                    temp_dict['lib_no'] = 1
+            elif curr_party == 'g':
+                if 'grn_no' in temp_dict:
+                    temp_dict['grn_no'] += 1
+                else:
+                    temp_dict['grn_no'] = 1
+            elif curr_party == 'o':
+                if 'oth_no' in temp_dict:
+                    temp_dict['oth_no'] += 1
+                else:
+                    temp_dict['oth_no'] = 1
+        
+        curr_state = row['state']
+        
+
+    final_df = pd.DataFrame(final_df)
+    final_df = final_df.set_index("state_fips")
+    final_df["state_fips"] = final_df.index
+    return final_df
+
+def get_winning_party(row):
+    max_val = 0
+    winning_party = '#'
+    if row['dem_no'] > max_val:
+        max_val = row['dem_no']
+        winning_party = 'd'
+    if row['rep_no'] > max_val:
+        max_val = row['rep_no']
+        winning_party = 'r'
+    if row['grn_no'] > max_val:
+        max_val = row['grn_no']
+        winning_party = 'g'
+    if row['lib_no'] > max_val:
+        max_val = row['lib_no']
+        winning_party = 'l'
+    if row['oth_no'] > max_val:
+        max_val = row['oth_no']
+        winning_party = 'o'
+    return winning_party
 
 dataset = st.sidebar.selectbox(
         "Choose the dataset",
@@ -325,7 +451,7 @@ end_year = st.selectbox(
 
 alt.data_transformers.enable('default', max_rows=None)
 
-if start_year != end_year and dataset != "House":
+if start_year != end_year:
     df2 = pd.DataFrame(df,columns=[curr_col])
     df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=[curr_col,curr_party])
     df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=[curr_col,curr_party])
