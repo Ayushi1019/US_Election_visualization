@@ -633,8 +633,6 @@ else:
                 height=400
             )
     st.write(fig)
-    st.write("* dem_no is the count of votes of Democrat")
-    st.write("* rep_no is the count of votes of Republican")
     
 
 
