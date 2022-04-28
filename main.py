@@ -613,7 +613,8 @@ else:
     final_df = final_df.set_index("state_fips")
     final_df["state_fips"] = final_df.index
 
-    final_df['max_dem_or_rep'] = np.where((final_df['dem_no'] <= final_df['rep_no']), final_df['rep_no'], final_df['dem_no'])
+    final_df['winner'] = np.where((final_df['dem_no'] <= final_df['rep_no']), 0, 1)
+    final_df['winning_party'] = np.where((final_df['winner'] == 0), "Republican", "Democrat")
 
     fig = alt.Chart(features).mark_geoshape(
             stroke='black',
@@ -621,12 +622,12 @@ else:
             ).project(
                 type='albersUsa'
             ).encode(
-                color= alt.Color('max_dem_or_rep:Q',scale=alt.Scale(scheme='redblue')),
-                tooltip=['state:N', 'dem_no:Q','rep_no:Q'],
+                color= alt.Color('winner:Q',scale=alt.Scale(scheme='redblue')),
+                tooltip=['state:N', 'winning_party:N'],
                 
             ).transform_lookup(
             lookup='id',
-            from_=alt.LookupData(final_df, 'state_fips', ['dem_no','rep_no', 'state','max_dem_or_rep'])
+            from_=alt.LookupData(final_df, 'state_fips', ['state','winner','winning_party'])
             ).properties(
                 width=800,
                 height=400
