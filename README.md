@@ -17,6 +17,20 @@ Shreya Sekhar
 <br/>
 Akshay Srinivasan
 
+## Tech Stack:
+  * Python
+  * Numpy
+  * Pandas
+  * Altair
+  * Streamlit
+  
+Vega datasets are used to fetch boundary of US counties and states.
+
+## Project URL:
+You can check out the app at Streamlit IO Pages.
+https://share.streamlit.io/ayushi1019/us_election_visualization/dev/main.py
+
+
 ## Data Resource:
 
 https://electionlab.mit.edu/data
@@ -110,7 +124,6 @@ The presidential election dataset spans the years 2000 to 2020, while the senate
     <figcaption align = "center">   <b>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;DEMOCRATS &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; REPUBLICANS</b></figcaption>
   <p align="center">
   <img width="340" alt="img13" src="https://user-images.githubusercontent.com/51698822/165862982-409c4574-8d01-4466-9cc6-5e7327bdb0ac.png">
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img width="340" alt="img14" src="https://user-images.githubusercontent.com/51698822/165863019-ce969796-ee30-4ccf-9e24-f39d201629ff.png">
   </p>
   
@@ -122,7 +135,6 @@ The presidential election dataset spans the years 2000 to 2020, while the senate
   </p> 
   <p align="center">
   <img width="340" alt="img16" src="https://user-images.githubusercontent.com/51698822/165863810-1b97fa2d-2c4e-43fc-9531-a7ee808932ed.png">
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <img width="340" alt="img17" src="https://user-images.githubusercontent.com/51698822/165863819-ce60a416-ddcd-4931-a5c8-b2e46618bf5b.png">
            
   - Senate:
@@ -133,12 +145,27 @@ The presidential election dataset spans the years 2000 to 2020, while the senate
   <figcaption align = "center">   <b>&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;DEMOCRATS &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; REPUBLICANS</b></figcaption>
    <p align="center">
   <img width="340" alt="img19" src="https://user-images.githubusercontent.com/51698822/165864531-50e7ce1a-4c0c-4436-a903-73d803da48e9.png">
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  
   <img width="340" alt="img20" src="https://user-images.githubusercontent.com/51698822/165864547-1dff8401-1d99-460d-a2b4-a31e59da82f5.png">
   </p>
   
 ## Prediction:
 
 <br/>
-The presidential dataset from year 2000-2020 is used for the prediction of the 2024 presidential elections. The whole span of twenty years consisting of six elections are considered and analyzed to predict the upcoming 2024 elections. A linear regression model is used to predict the 2024 elections which gives us the final count of 271 for the Democrats and 267 for the Republicans, showing that the Democrats win the presidential election for the year 2024.This prediction is not based on every election happened o far but only on the years which our dataset comprises of hence, may not be 100% accurate but with respect to our dataset, the chances for the democrats winning the election of the year 2024 is high as predicted and shown using the visualization plot showcasing the counts per each state.
+The presidential dataset from year 2000-2020 is used for the prediction of the 2024 presidential elections. The whole span of twenty years consisting of six elections are considered and analyzed to predict the upcoming 2024 elections. A linear regression model is used to predict the 2024 elections which gives us the final count of 271 for the Democrats and 267 for the Republicans, showing that the Democrats win the presidential election for the year 2024.This prediction is not based on every election happened so far but only on the years which our dataset comprises of hence, may not be 100% accurate but with respect to our dataset, the chances for the democrats winning the election of the year 2024 is high as predicted and shown using the visualization plot showcasing the counts per each state.
+
+<br/>
+<br/>
+
+## To run the project:
+To install all the dependencies run:
+``` 
+  pip install requirements.txt
+```
+
+To run the app run:
+```
+  streamlit run main.py
+```
+  
 
