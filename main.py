@@ -382,6 +382,7 @@ dataset = st.sidebar.selectbox(
         ("Senate", "House", "Presidential")
     )
 df = load_df_senate()
+st.write(df)
 
 valid_party = ['DEMOCRAT', 'REPUBLICAN', 'LIBERTARIAN', 'GREEN', 'OTHER']
 if dataset == "Senate":
@@ -455,6 +456,20 @@ if start_year != end_year:
     df2 = pd.DataFrame(df,columns=[curr_col])
     df_end_year = pd.DataFrame(df.loc[df["year"] == end_year],columns=[curr_col,curr_party])
     df_start_year = pd.DataFrame(df.loc[df["year"] == start_year],columns=[curr_col,curr_party])
+    df2.columns = df2.columns.str.replace(' ', '')
+    df_end_year.columns = df_end_year.columns.str.replace(' ', '')
+    df_start_year.columns = df_start_year.columns.str.replace(' ', '')
+    
+    df2 = (df2.reset_index()
+        .drop_duplicates(subset='state_fips', keep='first')
+        .set_index('state_fips').sort_index())
+    df_end_year = (df_end_year.reset_index()
+        .drop_duplicates(subset='state_fips', keep='first')
+        .set_index('state_fips').sort_index())
+    df_start_year = (df_start_year.reset_index()
+        .drop_duplicates(subset='state_fips', keep='first')
+        .set_index('state_fips').sort_index())
+
     df2["end_year"] = df_end_year[curr_party]
     df2["start_year"] = df_start_year[curr_party]
     df2[p_key] = df2.index
