@@ -629,8 +629,8 @@ else:
             lookup='id',
             from_=alt.LookupData(final_df, 'state_fips', ['state','winner','winning_party'])
             ).properties(
-                width=800,
-                height=400
+                width=1000,
+                height=500
             )
     st.write(fig)
     
