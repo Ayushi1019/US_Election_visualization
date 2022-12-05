@@ -30,7 +30,7 @@ Vega datasets are used to fetch boundary of US counties and states.
 You can check out the app at Streamlit IO Pages.
 <br/>
 <br/>
-https://share.streamlit.io/ayushi1019/us_election_visualization/dev/main.py
+https://ayushi1019-us-election-visualization-main-mi1f7m.streamlit.app/
 
 
 ## Data Resource:
